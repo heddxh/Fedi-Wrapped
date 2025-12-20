@@ -302,19 +302,19 @@ export default function App() {
 
             case 3: // Habits (Graph + Special Posts)
                 return (
-                    <div className="flex flex-col h-full justify-center p-4 w-full">
-                        <div className="text-center mb-2">
-                            <h2 className="text-2xl md:text-4xl font-display font-bold mb-1 drop-shadow-lg">你的节奏</h2>
+                    <div className="flex flex-col h-full justify-center p-4 md:p-8 w-full max-w-6xl mx-auto">
+                        <div className="text-center mb-2 md:mb-4">
+                            <h2 className="text-2xl md:text-4xl font-display font-bold mb-1 md:mb-2 drop-shadow-lg">你的节奏</h2>
                             <p className="text-sm md:text-xl text-white/90 drop-shadow-md">
                                 你最活跃的时间大约是 <span className="text-blue-300 font-bold">{stats.mostActiveHour}:00</span>。
                             </p>
                         </div>
 
-                        <div className="bg-white/10 p-3 md:p-6 rounded-2xl border border-white/10 backdrop-blur-lg shadow-2xl mb-3 flex-shrink-0 h-[20vh] min-h-[120px] max-h-[200px] overflow-hidden">
+                        <div className="bg-white/10 p-3 md:p-6 rounded-2xl md:rounded-[2rem] border border-white/10 backdrop-blur-lg shadow-2xl mb-3 md:mb-6 flex-shrink-0 h-[20vh] md:h-[30vh] min-h-[120px] overflow-hidden">
                             <ActivityChart data={stats.postsByHour} />
                         </div>
 
-                        {/* Special Posts Grid - More compact */}
+                        {/* Special Posts Grid */}
                         <div className="grid grid-cols-2 gap-2 md:gap-4 w-full">
                             {/* Night Owl */}
                             {stats.latestPost && (
@@ -322,17 +322,17 @@ export default function App() {
                                     href={stats.latestPost.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10 flex flex-col hover:bg-white/15 transition-all cursor-pointer group"
+                                    className="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-3 md:p-5 border border-white/10 flex flex-col hover:bg-white/15 hover:scale-[1.01] transition-all cursor-pointer group"
                                 >
-                                    <div className="flex items-center gap-2 mb-2 text-purple-200">
-                                        <Moon size={14} className="group-hover:text-purple-100" />
-                                        <span className="font-bold text-[10px] uppercase tracking-wider group-hover:text-white">最晚夜猫子</span>
-                                        <span className="ml-auto font-mono bg-purple-900/50 px-1.5 py-0.5 rounded text-[9px] border border-purple-500/30">
+                                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3 text-purple-200">
+                                        <Moon size={14} className="md:w-5 md:h-5 group-hover:text-purple-100" />
+                                        <span className="font-bold text-[10px] md:text-sm uppercase tracking-wider group-hover:text-white">最晚夜猫子</span>
+                                        <span className="ml-auto font-mono bg-purple-900/50 px-1.5 md:px-2 py-0.5 rounded text-[9px] md:text-xs border border-purple-500/30">
                                             {formatTime(stats.latestPost.created_at)}
                                         </span>
                                     </div>
                                     <div
-                                        className="text-[10px] md:text-xs text-white/80 line-clamp-2 font-medium break-words"
+                                        className="text-[10px] md:text-base text-white/80 line-clamp-2 md:line-clamp-3 font-medium break-words"
                                         dangerouslySetInnerHTML={{ __html: stats.latestPost.content }}
                                     />
                                 </a>
@@ -344,14 +344,14 @@ export default function App() {
                                     href={stats.rarePost.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10 flex flex-col hover:bg-white/15 transition-all cursor-pointer group"
+                                    className="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-3 md:p-5 border border-white/10 flex flex-col hover:bg-white/15 hover:scale-[1.01] transition-all cursor-pointer group"
                                 >
-                                    <div className="flex items-center gap-2 mb-2 text-orange-200">
-                                        <Clock size={14} className="group-hover:text-orange-100" />
-                                        <span className="font-bold text-[10px] uppercase tracking-wider group-hover:text-white">罕见出没</span>
+                                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3 text-orange-200">
+                                        <Clock size={14} className="md:w-5 md:h-5 group-hover:text-orange-100" />
+                                        <span className="font-bold text-[10px] md:text-sm uppercase tracking-wider group-hover:text-white">罕见出没</span>
                                     </div>
                                     <div
-                                        className="text-[10px] md:text-xs text-white/80 line-clamp-2 font-medium break-words"
+                                        className="text-[10px] md:text-base text-white/80 line-clamp-2 md:line-clamp-3 font-medium break-words"
                                         dangerouslySetInnerHTML={{ __html: stats.rarePost.content }}
                                     />
                                 </a>
@@ -433,84 +433,84 @@ export default function App() {
                     </div>
                 );
 
-            case 7: // Summary (Redesigned as One-Sheet Poster - Compact)
+            case 7: // Summary (Redesigned as One-Sheet Poster - Responsive)
                 return (
-                    <div className="flex flex-col h-full justify-center items-center p-3">
-                        <div className="relative bg-white/10 backdrop-blur-2xl p-4 md:p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/20 flex flex-col gap-3 md:gap-5 animate-fade-in-up">
+                    <div className="flex flex-col h-full justify-center items-center p-3 md:p-8">
+                        <div className="relative bg-white/10 backdrop-blur-2xl p-4 md:p-10 rounded-2xl md:rounded-[2rem] shadow-2xl max-w-md md:max-w-lg w-full border border-white/20 flex flex-col gap-3 md:gap-6 animate-fade-in-up">
                             {/* Header: User Info */}
-                            <div className="flex items-center gap-3 border-b border-white/10 pb-3">
-                                <img src={stats.account.avatar} className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-white/10 shadow-lg" alt="avatar" crossOrigin="anonymous" />
+                            <div className="flex items-center gap-3 md:gap-5 border-b border-white/10 pb-3 md:pb-5">
+                                <img src={stats.account.avatar} className="w-12 h-12 md:w-20 md:h-20 rounded-full border-2 md:border-4 border-white/10 shadow-lg" alt="avatar" crossOrigin="anonymous" />
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-base md:text-xl font-display drop-shadow-md truncate">{stats.account.display_name}</h3>
-                                    <p className="text-white/60 text-[10px] md:text-xs font-mono truncate">@{stats.account.username}</p>
+                                    <h3 className="font-bold text-base md:text-2xl font-display drop-shadow-md truncate">{stats.account.display_name}</h3>
+                                    <p className="text-white/60 text-[10px] md:text-sm font-mono truncate">@{stats.account.username}</p>
                                 </div>
-                                <div className="text-2xl md:text-3xl font-bold font-display tracking-tighter opacity-20">{stats.year}</div>
+                                <div className="text-2xl md:text-4xl font-bold font-display tracking-tighter opacity-20">{stats.year}</div>
                             </div>
 
-                            {/* Hero: Keyword - More compact */}
-                            <div className="text-center py-1">
-                                <div className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/50 mb-1 font-bold">年度关键词</div>
-                                <h2 className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-100 to-purple-200 drop-shadow-xl">{stats.vibeKeyword}</h2>
-                                <p className="text-white/80 mt-1 text-xs md:text-sm leading-relaxed line-clamp-2">{stats.vibeDescription}</p>
+                            {/* Hero: Keyword */}
+                            <div className="text-center py-1 md:py-3">
+                                <div className="text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/50 mb-1 md:mb-2 font-bold">年度关键词</div>
+                                <h2 className="text-3xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-100 to-purple-200 drop-shadow-xl">{stats.vibeKeyword}</h2>
+                                <p className="text-white/80 mt-1 md:mt-3 text-xs md:text-lg leading-relaxed line-clamp-2">{stats.vibeDescription}</p>
                             </div>
 
-                            {/* Stats Grid - More compact 3 columns */}
-                            <div className="grid grid-cols-3 gap-2">
-                                <div className="bg-black/20 rounded-xl p-2 text-center">
-                                    <div className="text-lg md:text-xl font-bold font-display">{stats.totalPosts}</div>
-                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">发布数</div>
+                            {/* Stats Grid - 3 columns on mobile, 2 columns on desktop */}
+                            <div className="grid grid-cols-3 md:grid-cols-2 gap-2 md:gap-4">
+                                <div className="bg-black/20 rounded-xl md:rounded-2xl p-2 md:p-4 text-center">
+                                    <div className="text-lg md:text-2xl font-bold font-display">{stats.totalPosts}</div>
+                                    <div className="text-[8px] md:text-xs text-white/50 uppercase tracking-wide">发布数</div>
                                 </div>
-                                <div className="bg-black/20 rounded-xl p-2 text-center">
-                                    <div className="text-lg md:text-xl font-bold font-display text-pink-300">{stats.totalFavourites}</div>
-                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">喜欢</div>
+                                <div className="bg-black/20 rounded-xl md:rounded-2xl p-2 md:p-4 text-center">
+                                    <div className="text-lg md:text-2xl font-bold font-display text-pink-300">{stats.totalFavourites}</div>
+                                    <div className="text-[8px] md:text-xs text-white/50 uppercase tracking-wide">喜欢</div>
                                 </div>
-                                <div className="bg-black/20 rounded-xl p-2 text-center">
-                                    <div className="text-lg md:text-xl font-bold font-display text-blue-300">{stats.totalReblogs}</div>
-                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">转发</div>
+                                <div className="bg-black/20 rounded-xl md:rounded-2xl p-2 md:p-4 text-center">
+                                    <div className="text-lg md:text-2xl font-bold font-display text-blue-300">{stats.totalReblogs}</div>
+                                    <div className="text-[8px] md:text-xs text-white/50 uppercase tracking-wide">转发</div>
                                 </div>
-                                <div className="bg-black/20 rounded-xl p-2 text-center">
-                                    <div className="text-lg md:text-xl font-bold font-display text-emerald-300">{stats.mostActiveHour}:00</div>
-                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">活跃时间</div>
+                                <div className="bg-black/20 rounded-xl md:rounded-2xl p-2 md:p-4 text-center">
+                                    <div className="text-lg md:text-2xl font-bold font-display text-emerald-300">{stats.mostActiveHour}:00</div>
+                                    <div className="text-[8px] md:text-xs text-white/50 uppercase tracking-wide">活跃时间</div>
                                 </div>
-                                <div className="bg-black/20 rounded-xl p-2 text-center">
-                                    <div className="text-lg md:text-xl font-bold font-display text-orange-300">{stats.mostActiveMonth}</div>
-                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">活跃月份</div>
+                                <div className="bg-black/20 rounded-xl md:rounded-2xl p-2 md:p-4 text-center">
+                                    <div className="text-lg md:text-2xl font-bold font-display text-orange-300">{stats.mostActiveMonth}</div>
+                                    <div className="text-[8px] md:text-xs text-white/50 uppercase tracking-wide">活跃月份</div>
                                 </div>
-                                <div className="bg-black/20 rounded-xl p-2 text-center">
-                                    <div className="text-lg md:text-xl font-bold font-display text-yellow-300">{stats.longestStreak}</div>
-                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">连续天数</div>
+                                <div className="bg-black/20 rounded-xl md:rounded-2xl p-2 md:p-4 text-center">
+                                    <div className="text-lg md:text-2xl font-bold font-display text-yellow-300">{stats.longestStreak}</div>
+                                    <div className="text-[8px] md:text-xs text-white/50 uppercase tracking-wide">连续天数</div>
                                 </div>
                             </div>
 
-                            {/* Tags - Only show if there's space */}
+                            {/* Tags */}
                             {stats.topTags.length > 0 && (
-                                <div className="flex flex-wrap justify-center gap-1">
-                                    {stats.topTags.slice(0, 4).map(t => (
-                                        <span key={t} className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-white/70 font-mono">{t}</span>
+                                <div className="flex flex-wrap justify-center gap-1 md:gap-2">
+                                    {stats.topTags.slice(0, 5).map(t => (
+                                        <span key={t} className="text-[10px] md:text-sm bg-white/5 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-white/70 font-mono">{t}</span>
                                     ))}
                                 </div>
                             )}
 
                             <div className="flex justify-between items-end opacity-40">
-                                <div className="flex items-center gap-1">
-                                    <Sparkles size={12} />
-                                    <span className="text-[9px] font-bold tracking-widest">FEDI WRAPPED</span>
+                                <div className="flex items-center gap-1 md:gap-2">
+                                    <Sparkles size={12} className="md:w-4 md:h-4" />
+                                    <span className="text-[9px] md:text-xs font-bold tracking-widest">FEDI WRAPPED</span>
                                 </div>
-                                <div className="text-[9px] font-mono">{new Date().toLocaleDateString('zh-CN')}</div>
+                                <div className="text-[9px] md:text-xs font-mono">{new Date().toLocaleDateString('zh-CN')}</div>
                             </div>
                         </div>
 
-                        <div className="mt-3 flex gap-2 exclude-from-capture">
+                        <div className="mt-3 md:mt-6 flex gap-2 md:gap-4 exclude-from-capture">
                             <button
                                 onClick={handleRegenerateVibe}
                                 disabled={regeneratingVibe}
-                                className="px-3 py-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-xs font-bold shadow-lg border border-white/5 backdrop-blur-sm flex items-center gap-1"
+                                className="px-3 md:px-5 py-2 md:py-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-xs md:text-base font-bold shadow-lg border border-white/5 backdrop-blur-sm flex items-center gap-1 md:gap-2"
                             >
-                                <RefreshCw size={14} className={regeneratingVibe ? 'animate-spin' : ''} />
+                                <RefreshCw size={14} className={`md:w-5 md:h-5 ${regeneratingVibe ? 'animate-spin' : ''}`} />
                                 <span>重新生成</span>
                             </button>
 
-                            <button onClick={handleStartOver} className="px-4 py-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-xs font-bold shadow-lg border border-white/5 backdrop-blur-sm">
+                            <button onClick={handleStartOver} className="px-4 md:px-6 py-2 md:py-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-xs md:text-base font-bold shadow-lg border border-white/5 backdrop-blur-sm">
                                 重新开始
                             </button>
                         </div>
@@ -574,23 +574,18 @@ export default function App() {
                 </div>
             </div>
 
-            {/* Main Content Area - 9:16 aspect ratio on portrait, full width on landscape */}
+            {/* Main Content Area - Full screen on desktop, 9:16 on mobile portrait for export */}
             <div
                 ref={slideRef}
-                className={`relative z-0 flex flex-col items-center overflow-hidden ${getBackground()}`}
+                className={`relative z-0 flex flex-col items-center overflow-hidden ${getBackground()} w-full h-full md:w-full md:h-full`}
                 style={{
-                    // On portrait: use 9:16 aspect ratio based on viewport width
-                    // On landscape: fill the screen
-                    width: '100%',
-                    height: '100%',
-                    maxWidth: 'min(100vw, calc(100dvh * 9 / 16))',
-                    maxHeight: '100dvh',
-                    aspectRatio: '9 / 16',
+                    // Mobile portrait: 9:16 aspect ratio for social media export
+                    // Desktop/landscape: fill the screen
                 }}
             >
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
                 {/* Higher Z-index for content to be interactive over nav zones in the center */}
-                <div className="relative z-50 w-full h-full flex flex-col pointer-events-none [&>*]:pointer-events-auto justify-center px-4 py-10 overflow-y-auto">
+                <div className="relative z-50 w-full h-full max-w-6xl mx-auto flex flex-col pointer-events-none [&>*]:pointer-events-auto justify-center px-4 md:px-8 py-10 overflow-y-auto">
                     {renderSlideContent()}
                 </div>
             </div>

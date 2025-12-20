@@ -8,9 +8,6 @@ export default defineConfig(({ mode }) => {
   console.log("GEMINI_API_KEY loaded:", env.GEMINI_API_KEY ? "YES (Length: " + env.GEMINI_API_KEY.length + ")" : "NO");
 
   return {
-    // Base path for GitHub Pages - use repo name for project pages
-    // Set to '/' for custom domain or user/org pages (username.github.io)
-    base: '/Fedi-Wrapped/',
     server: {
       port: 3000,
       host: '0.0.0.0',
