@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { toBlob, toPng } from 'html-to-image';
+import { toPng, toBlob } from 'html-to-image';
 import { Sparkles, ArrowRight, Calendar, MessageCircle, Moon, Clock, ChevronLeft, ChevronRight, Copy, Check, Download, RefreshCw } from 'lucide-react';
 
 // Types
@@ -59,11 +59,11 @@ export default function App() {
 
     const slideRef = useRef<HTMLDivElement>(null);
 
-    // Highlight slide tab state
-    const [highlightTab, setHighlightTab] = useState<'fav' | 'boost'>('fav');
-
     // Load fonts
     const fontCss = useFontLoader();
+
+    // Highlight slide tab state
+    const [highlightTab, setHighlightTab] = useState<'fav' | 'boost'>('fav');
 
     const addAccount = () => {
         setAccounts([...accounts, { instance: '', username: '', token: '', id: Date.now().toString() }]);
@@ -153,6 +153,7 @@ export default function App() {
         if (slideIndex > 0) setSlideIndex(p => p - 1);
     };
 
+    // Filter node for html-to-image (exclude buttons, etc.)
     const filterNode = (node: HTMLElement) => {
         if (node.tagName === 'LINK' && node.getAttribute('rel') === 'stylesheet') {
             return false;
@@ -163,6 +164,7 @@ export default function App() {
         return true;
     };
 
+    // Export handlers - direct capture of visible slide
     const handleCopySlide = async () => {
         if (!slideRef.current || copying) return;
 
@@ -170,7 +172,6 @@ export default function App() {
         try {
             const blob = await toBlob(slideRef.current, {
                 cacheBust: true,
-                skipAutoScale: true,
                 type: 'image/png',
                 backgroundColor: '#000000',
                 filter: filterNode,
@@ -199,7 +200,6 @@ export default function App() {
         try {
             const dataUrl = await toPng(slideRef.current, {
                 cacheBust: true,
-                skipAutoScale: true,
                 backgroundColor: '#000000',
                 filter: filterNode,
                 fontEmbedCSS: fontCss || undefined
@@ -302,43 +302,39 @@ export default function App() {
 
             case 3: // Habits (Graph + Special Posts)
                 return (
-                    <div className="flex flex-col h-full justify-center p-4 md:p-8 max-w-6xl mx-auto w-full">
-                        <div className="text-center mb-2 md:mb-4">
-                            <h2 className="text-3xl md:text-4xl font-display font-bold mb-2 drop-shadow-lg">你的节奏</h2>
-                            <p className="text-base md:text-xl text-white/90 drop-shadow-md">
+                    <div className="flex flex-col h-full justify-center p-4 w-full">
+                        <div className="text-center mb-2">
+                            <h2 className="text-2xl md:text-4xl font-display font-bold mb-1 drop-shadow-lg">你的节奏</h2>
+                            <p className="text-sm md:text-xl text-white/90 drop-shadow-md">
                                 你最活跃的时间大约是 <span className="text-blue-300 font-bold">{stats.mostActiveHour}:00</span>。
                             </p>
                         </div>
 
-                        <div className="bg-white/10 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-white/10 backdrop-blur-lg shadow-2xl mb-4 md:mb-6 flex flex-col relative z-50 h-[25vh] md:h-[30vh]">
+                        <div className="bg-white/10 p-3 md:p-6 rounded-2xl border border-white/10 backdrop-blur-lg shadow-2xl mb-3 flex-shrink-0 h-[20vh] min-h-[120px] max-h-[200px] overflow-hidden">
                             <ActivityChart data={stats.postsByHour} />
                         </div>
 
-                        {/* Special Posts Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full">
+                        {/* Special Posts Grid - More compact */}
+                        <div className="grid grid-cols-2 gap-2 md:gap-4 w-full">
                             {/* Night Owl */}
                             {stats.latestPost && (
                                 <a
                                     href={stats.latestPost.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-5 border border-white/10 flex flex-col hover:bg-white/15 hover:scale-[1.01] transition-all cursor-pointer group"
+                                    className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10 flex flex-col hover:bg-white/15 transition-all cursor-pointer group"
                                 >
-                                    <div className="flex items-center gap-3 mb-3 text-purple-200">
-                                        <Moon size={18} className="group-hover:text-purple-100 md:w-5 md:h-5" />
-                                        <span className="font-bold text-xs md:text-sm uppercase tracking-wider group-hover:text-white">最晚夜猫子时刻</span>
-                                        <span className="ml-auto font-mono bg-purple-900/50 px-2 py-0.5 rounded text-[10px] md:text-xs border border-purple-500/30">
+                                    <div className="flex items-center gap-2 mb-2 text-purple-200">
+                                        <Moon size={14} className="group-hover:text-purple-100" />
+                                        <span className="font-bold text-[10px] uppercase tracking-wider group-hover:text-white">最晚夜猫子</span>
+                                        <span className="ml-auto font-mono bg-purple-900/50 px-1.5 py-0.5 rounded text-[9px] border border-purple-500/30">
                                             {formatTime(stats.latestPost.created_at)}
                                         </span>
                                     </div>
                                     <div
-                                        className="text-xs md:text-base text-white/80 line-clamp-3 font-medium mb-2 break-words"
+                                        className="text-[10px] md:text-xs text-white/80 line-clamp-2 font-medium break-words"
                                         dangerouslySetInnerHTML={{ __html: stats.latestPost.content }}
                                     />
-                                    <div className="mt-auto flex justify-between items-center pt-2 border-t border-white/5">
-                                        <span className="text-[10px] md:text-xs text-white/40">{new Date(stats.latestPost.created_at).toLocaleDateString()}</span>
-                                        <span className="text-[10px] md:text-xs font-bold text-white/40 flex items-center gap-1 group-hover:text-white group-hover:translate-x-1 transition-all">查看 <ArrowRight size={12} /></span>
-                                    </div>
                                 </a>
                             )}
 
@@ -348,20 +344,16 @@ export default function App() {
                                     href={stats.rarePost.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-5 border border-white/10 flex flex-col hover:bg-white/15 hover:scale-[1.01] transition-all cursor-pointer group"
+                                    className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10 flex flex-col hover:bg-white/15 transition-all cursor-pointer group"
                                 >
-                                    <div className="flex items-center gap-3 mb-3 text-orange-200">
-                                        <Clock size={18} className="group-hover:text-orange-100 md:w-5 md:h-5" />
-                                        <span className="font-bold text-xs md:text-sm uppercase tracking-wider group-hover:text-white">罕见出没 ({stats.leastActiveHour}:00)</span>
+                                    <div className="flex items-center gap-2 mb-2 text-orange-200">
+                                        <Clock size={14} className="group-hover:text-orange-100" />
+                                        <span className="font-bold text-[10px] uppercase tracking-wider group-hover:text-white">罕见出没</span>
                                     </div>
                                     <div
-                                        className="text-xs md:text-base text-white/80 line-clamp-3 font-medium mb-2 break-words"
+                                        className="text-[10px] md:text-xs text-white/80 line-clamp-2 font-medium break-words"
                                         dangerouslySetInnerHTML={{ __html: stats.rarePost.content }}
                                     />
-                                    <div className="mt-auto flex justify-between items-center pt-2 border-t border-white/5">
-                                        <span className="text-[10px] md:text-xs text-white/40">{new Date(stats.rarePost.created_at).toLocaleDateString()}</span>
-                                        <span className="text-[10px] md:text-xs font-bold text-white/40 flex items-center gap-1 group-hover:text-white group-hover:translate-x-1 transition-all">查看 <ArrowRight size={12} /></span>
-                                    </div>
                                 </a>
                             )}
                         </div>
@@ -441,99 +433,84 @@ export default function App() {
                     </div>
                 );
 
-            case 7: // Summary (Redesigned as One-Sheet Poster)
+            case 7: // Summary (Redesigned as One-Sheet Poster - Compact)
                 return (
-                    <div className="flex flex-col h-full justify-center items-center p-4">
-                        <div className="relative bg-white/10 backdrop-blur-2xl p-6 md:p-12 rounded-[1.5rem] md:rounded-[2rem] shadow-2xl max-w-lg w-full border border-white/20 flex flex-col gap-6 md:gap-8 animate-fade-in-up">
+                    <div className="flex flex-col h-full justify-center items-center p-3">
+                        <div className="relative bg-white/10 backdrop-blur-2xl p-4 md:p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/20 flex flex-col gap-3 md:gap-5 animate-fade-in-up">
                             {/* Header: User Info */}
-                            <div className="flex items-center gap-4 md:gap-6 border-b border-white/10 pb-4 md:pb-6">
-                                <img src={stats.account.avatar} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white/10 shadow-lg" alt="avatar" crossOrigin="anonymous" />
-                                <div>
-                                    <h3 className="font-bold text-xl md:text-2xl font-display drop-shadow-md line-clamp-1">{stats.account.display_name}</h3>
-                                    <p className="text-white/60 text-xs md:text-sm font-mono tracking-wider uppercase">@{stats.account.username}</p>
+                            <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+                                <img src={stats.account.avatar} className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-white/10 shadow-lg" alt="avatar" crossOrigin="anonymous" />
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-bold text-base md:text-xl font-display drop-shadow-md truncate">{stats.account.display_name}</h3>
+                                    <p className="text-white/60 text-[10px] md:text-xs font-mono truncate">@{stats.account.username}</p>
                                 </div>
-                                <div className="ml-auto text-right">
-                                    <div className="text-3xl md:text-4xl font-bold font-display tracking-tighter opacity-20">{stats.year}</div>
+                                <div className="text-2xl md:text-3xl font-bold font-display tracking-tighter opacity-20">{stats.year}</div>
+                            </div>
+
+                            {/* Hero: Keyword - More compact */}
+                            <div className="text-center py-1">
+                                <div className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/50 mb-1 font-bold">年度关键词</div>
+                                <h2 className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-100 to-purple-200 drop-shadow-xl">{stats.vibeKeyword}</h2>
+                                <p className="text-white/80 mt-1 text-xs md:text-sm leading-relaxed line-clamp-2">{stats.vibeDescription}</p>
+                            </div>
+
+                            {/* Stats Grid - More compact 3 columns */}
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="bg-black/20 rounded-xl p-2 text-center">
+                                    <div className="text-lg md:text-xl font-bold font-display">{stats.totalPosts}</div>
+                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">发布数</div>
+                                </div>
+                                <div className="bg-black/20 rounded-xl p-2 text-center">
+                                    <div className="text-lg md:text-xl font-bold font-display text-pink-300">{stats.totalFavourites}</div>
+                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">喜欢</div>
+                                </div>
+                                <div className="bg-black/20 rounded-xl p-2 text-center">
+                                    <div className="text-lg md:text-xl font-bold font-display text-blue-300">{stats.totalReblogs}</div>
+                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">转发</div>
+                                </div>
+                                <div className="bg-black/20 rounded-xl p-2 text-center">
+                                    <div className="text-lg md:text-xl font-bold font-display text-emerald-300">{stats.mostActiveHour}:00</div>
+                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">活跃时间</div>
+                                </div>
+                                <div className="bg-black/20 rounded-xl p-2 text-center">
+                                    <div className="text-lg md:text-xl font-bold font-display text-orange-300">{stats.mostActiveMonth}</div>
+                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">活跃月份</div>
+                                </div>
+                                <div className="bg-black/20 rounded-xl p-2 text-center">
+                                    <div className="text-lg md:text-xl font-bold font-display text-yellow-300">{stats.longestStreak}</div>
+                                    <div className="text-[8px] md:text-[10px] text-white/50 uppercase tracking-wide">连续天数</div>
                                 </div>
                             </div>
 
-                            {/* Hero: Keyword */}
-                            <div className="text-center py-2 relative group">
-                                <div className="text-xs md:text-sm uppercase tracking-[0.3em] text-white/50 mb-2 font-bold">年度关键词</div>
-                                <h2 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-100 to-purple-200 drop-shadow-xl">{stats.vibeKeyword}</h2>
-                                <p className="text-white/80 mt-3 text-base md:text-lg leading-relaxed">{stats.vibeDescription}</p>
-
-                                {/* Regenerate Button */}
-                                <button
-                                    onClick={handleRegenerateVibe}
-                                    disabled={regeneratingVibe}
-                                    className="absolute -right-4 md:-right-12 top-0 md:top-1/2 transform md:-translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white/50 hover:text-white transition-all exclude-from-capture"
-                                    title="这家伙说什么呢，重新生成！"
-                                >
-                                    <RefreshCw size={16} className={`md:w-5 md:h-5 ${regeneratingVibe ? 'animate-spin' : ''}`} />
-                                </button>
-                            </div>
-
-                            {/* Stats Grid */}
-                            <div className="grid grid-cols-2 gap-3 md:gap-4">
-                                <div className="bg-black/20 rounded-2xl p-3 md:p-4 text-center">
-                                    <div className="text-xl md:text-2xl font-bold font-display">{stats.totalPosts}</div>
-                                    <div className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest mt-1">发布数</div>
-                                </div>
-                                <div className="bg-black/20 rounded-2xl p-3 md:p-4 text-center">
-                                    <div className="text-xl md:text-2xl font-bold font-display">{(stats.wordCount / 1000).toFixed(1)}k</div>
-                                    <div className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest mt-1">总字数</div>
-                                </div>
-                                <div className="bg-black/20 rounded-2xl p-3 md:p-4 text-center">
-                                    <div className="text-xl md:text-2xl font-bold font-display text-pink-300">{stats.totalFavourites}</div>
-                                    <div className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest mt-1">收获喜欢</div>
-                                </div>
-                                <div className="bg-black/20 rounded-2xl p-3 md:p-4 text-center">
-                                    <div className="text-xl md:text-2xl font-bold font-display text-blue-300">{stats.mostActiveHour}:00</div>
-                                    <div className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest mt-1">活跃时间</div>
-                                </div>
-                                <div className="bg-black/20 rounded-2xl p-3 md:p-4 text-center">
-                                    <div className="text-xl md:text-2xl font-bold font-display text-emerald-300">{stats.mostActiveMonth}</div>
-                                    <div className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest mt-1">最活跃月份</div>
-                                </div>
-                                <div className="bg-black/20 rounded-2xl p-3 md:p-4 text-center">
-                                    <div className="text-xl md:text-2xl font-bold font-display text-yellow-300">{stats.longestStreak}</div>
-                                    <div className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest mt-1">最长连续天数</div>
-                                </div>
-                            </div>
-
-                            {/* Tags */}
+                            {/* Tags - Only show if there's space */}
                             {stats.topTags.length > 0 && (
-                                <div className="border-t border-white/10 pt-4 md:pt-6">
-                                    <div className="flex flex-wrap justify-center gap-1.5 md:gap-2">
-                                        {stats.topTags.slice(0, 5).map(t => (
-                                            <span key={t} className="text-xs md:text-sm bg-white/5 px-2 py-1 md:px-3 rounded-full text-white/70 font-mono">{t}</span>
-                                        ))}
-                                    </div>
+                                <div className="flex flex-wrap justify-center gap-1">
+                                    {stats.topTags.slice(0, 4).map(t => (
+                                        <span key={t} className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-white/70 font-mono">{t}</span>
+                                    ))}
                                 </div>
                             )}
 
-                            <div className="mt-auto pt-4 md:pt-6 flex justify-between items-end opacity-40">
-                                <div className="flex items-center gap-2">
-                                    <Sparkles size={14} className="md:w-4 md:h-4" />
-                                    <span className="text-[10px] md:text-xs font-bold tracking-widest">FEDI WRAPPED</span>
+                            <div className="flex justify-between items-end opacity-40">
+                                <div className="flex items-center gap-1">
+                                    <Sparkles size={12} />
+                                    <span className="text-[9px] font-bold tracking-widest">FEDI WRAPPED</span>
                                 </div>
-                                <div className="text-[10px] md:text-xs font-mono">{new Date().toLocaleDateString('zh-CN')}</div>
+                                <div className="text-[9px] font-mono">{new Date().toLocaleDateString('zh-CN')}</div>
                             </div>
                         </div>
 
-                        <div className="mt-4 md:mt-8 flex gap-3 md:gap-4 exclude-from-capture">
+                        <div className="mt-3 flex gap-2 exclude-from-capture">
                             <button
                                 onClick={handleRegenerateVibe}
                                 disabled={regeneratingVibe}
-                                className="px-4 py-3 md:px-6 md:py-4 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-sm md:text-base font-bold shadow-lg border border-white/5 backdrop-blur-sm flex items-center gap-2"
+                                className="px-3 py-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-xs font-bold shadow-lg border border-white/5 backdrop-blur-sm flex items-center gap-1"
                             >
-                                <RefreshCw size={16} className={`md:w-5 md:h-5 ${regeneratingVibe ? 'animate-spin' : ''}`} />
-                                <span className="hidden md:inline">这家伙说什么呢，重新生成！</span>
-                                <span className="md:hidden">这家伙说什么呢，重新生成！</span>
+                                <RefreshCw size={14} className={regeneratingVibe ? 'animate-spin' : ''} />
+                                <span>重新生成</span>
                             </button>
 
-                            <button onClick={handleStartOver} className="px-6 py-3 md:px-8 md:py-4 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-sm md:text-lg font-bold shadow-lg border border-white/5 backdrop-blur-sm">
+                            <button onClick={handleStartOver} className="px-4 py-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-xs font-bold shadow-lg border border-white/5 backdrop-blur-sm">
                                 重新开始
                             </button>
                         </div>
@@ -566,7 +543,7 @@ export default function App() {
     }
 
     return (
-        <div className={`fixed inset-0 w-full h-[100dvh] text-white overflow-hidden transition-colors duration-1000 bg-black`}>
+        <div className="fixed inset-0 w-full h-[100dvh] text-white overflow-hidden transition-colors duration-1000 bg-black flex items-center justify-center">
             {/* Inject fonts if loaded */}
             {fontCss && <style>{fontCss}</style>}
 
@@ -597,14 +574,23 @@ export default function App() {
                 </div>
             </div>
 
-            {/* Main Content Area - SlideRef is now on a full-size container with the background */}
+            {/* Main Content Area - 9:16 aspect ratio on portrait, full width on landscape */}
             <div
                 ref={slideRef}
-                className={`relative z-0 h-full w-full flex flex-col items-center overflow-y-auto overflow-x-hidden ${getBackground()}`}
+                className={`relative z-0 flex flex-col items-center overflow-hidden ${getBackground()}`}
+                style={{
+                    // On portrait: use 9:16 aspect ratio based on viewport width
+                    // On landscape: fill the screen
+                    width: '100%',
+                    height: '100%',
+                    maxWidth: 'min(100vw, calc(100dvh * 9 / 16))',
+                    maxHeight: '100dvh',
+                    aspectRatio: '9 / 16',
+                }}
             >
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none fixed"></div>
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
                 {/* Higher Z-index for content to be interactive over nav zones in the center */}
-                <div className="relative z-50 w-full max-w-6xl flex flex-col pointer-events-none [&>*]:pointer-events-auto min-h-full justify-center py-10 md:py-0">
+                <div className="relative z-50 w-full h-full flex flex-col pointer-events-none [&>*]:pointer-events-auto justify-center px-4 py-10 overflow-y-auto">
                     {renderSlideContent()}
                 </div>
             </div>

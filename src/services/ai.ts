@@ -30,11 +30,6 @@ const callGenAi = async (prompt: string): Promise<{ keyword: string, description
     // Try standard process.env, then fallback to injected global
     const apiKey = (typeof __GEMINI_API_KEY__ !== 'undefined' ? __GEMINI_API_KEY__ : undefined) || process.env.API_KEY;
 
-    console.log("Debug - Env Check:", {
-        apiKeyFound: !!apiKey,
-        keyLength: apiKey ? apiKey.length : 0
-    });
-
     if (!apiKey) {
         return {
             keyword: "未知",

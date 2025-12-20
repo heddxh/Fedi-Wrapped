@@ -8,3 +8,5 @@ export { ThreadModal } from './ThreadModal';
 export { ProgressBar } from './ProgressBar';
 export { Heatmap } from './Heatmap';
 export { InnerCircleGraph } from './InnerCircleGraph';
+export { ExportContainer, EXPORT_WIDTH, EXPORT_HEIGHT } from './ExportContainer';
+export { ExportSlideContent } from './ExportSlideContent';
