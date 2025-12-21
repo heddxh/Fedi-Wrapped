@@ -451,7 +451,7 @@ export default function App() {
                             <div className="text-center py-1 md:py-3">
                                 <div className="text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/50 mb-1 md:mb-2 font-bold">年度关键词</div>
                                 <h2 className="text-3xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-100 to-purple-200 drop-shadow-xl">{stats.vibeKeyword}</h2>
-                                <p className="text-white/80 mt-1 md:mt-3 text-xs md:text-lg leading-relaxed line-clamp-2">{stats.vibeDescription}</p>
+                                <p className="text-white/80 mt-1 md:mt-3 text-xs md:text-lg leading-relaxed line-clamp-3">{stats.vibeDescription}</p>
                             </div>
 
                             {/* Stats Grid - 3 columns on mobile, 2 columns on desktop */}
