@@ -55,7 +55,6 @@ export const InnerCircleGraph: React.FC<InnerCircleGraphProps> = ({ friends, use
                     src={userAvatar || getFallbackAvatar('me')}
                     alt="Me"
                     className="w-16 h-16 md:w-28 md:h-28 rounded-full object-cover border-2 md:border-4 border-black"
-                    crossOrigin="anonymous"
                 />
             </div>
 

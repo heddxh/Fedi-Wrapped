@@ -295,7 +295,7 @@ export default function App() {
                 return (
                     <div className="flex flex-col items-center justify-center h-full p-4 md:p-8 text-center animate-fade-in-up">
                         <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white/20 overflow-hidden mb-6 md:mb-8 shadow-2xl">
-                            <img src={stats.account.avatar} alt="Profile" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                            <img src={stats.account.avatar} alt="Profile" className="w-full h-full object-cover" />
                         </div>
                         <h1 className="text-4xl md:text-6xl lg:text-8xl font-display font-bold mb-4 md:mb-6 tracking-tight break-words max-w-full drop-shadow-lg">
                             你好, <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200 block mt-2 drop-shadow-sm">{stats.account.display_name}</span>
@@ -499,7 +499,7 @@ export default function App() {
                         <div className="relative bg-white/10 backdrop-blur-2xl p-4 md:p-10 rounded-2xl md:rounded-[2rem] shadow-2xl max-w-md md:max-w-lg w-full border border-white/20 flex flex-col gap-3 md:gap-6 animate-fade-in-up">
                             {/* Header: User Info */}
                             <div className="flex items-center gap-3 md:gap-5 border-b border-white/10 pb-3 md:pb-5">
-                                <img src={stats.account.avatar} className="w-12 h-12 md:w-20 md:h-20 rounded-full border-2 md:border-4 border-white/10 shadow-lg" alt="avatar" crossOrigin="anonymous" />
+                                <img src={stats.account.avatar} className="w-12 h-12 md:w-20 md:h-20 rounded-full border-2 md:border-4 border-white/10 shadow-lg" alt="avatar" />
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-bold text-base md:text-2xl font-display drop-shadow-md truncate">{stats.account.display_name}</h3>
                                     <p className="text-white/60 text-[10px] md:text-sm font-mono truncate">@{stats.account.username}</p>
