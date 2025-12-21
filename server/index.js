@@ -120,7 +120,7 @@ app.post('/api/analyze', async (req, res) => {
 
 app.post('/api/regenerate', async (req, res) => {
     try {
-        const { postContentPool } = req.body;
+        const { postContentPool, username } = req.body;
 
         if (!postContentPool || !Array.isArray(postContentPool)) {
             return res.status(400).json({ error: 'Invalid request: postContentPool array required' });
@@ -131,7 +131,7 @@ app.post('/api/regenerate', async (req, res) => {
             .sort(() => 0.5 - Math.random())
             .slice(0, 40);
 
-        const prompt = generateAiPrompt('User', samplePosts);
+        const prompt = generateAiPrompt(username || 'User', samplePosts);
         const result = await callGenAi(prompt);
 
         res.json(result);

@@ -53,6 +53,6 @@ export const analyzeSentiment = async (posts: Status[], username: string): Promi
 /**
  * Regenerate vibe from post content pool (via backend proxy)
  */
-export const regenerateVibe = async (postContentPool: string[]): Promise<{ keyword: string, description: string, color: string }> => {
-    return await callProxyApi('/api/regenerate', { postContentPool });
+export const regenerateVibe = async (postContentPool: string[], username: string): Promise<{ keyword: string, description: string, color: string }> => {
+    return await callProxyApi('/api/regenerate', { postContentPool, username });
 };

@@ -184,7 +184,7 @@ export default function App() {
         if (!data || regeneratingVibe) return;
         setRegeneratingVibe(true);
         try {
-            const newVibe = await regenerateVibe(data.stats.postContentPool);
+            const newVibe = await regenerateVibe(data.stats.postContentPool, data.stats.account.username);
             setData(prev => {
                 if (!prev) return null;
                 return {
