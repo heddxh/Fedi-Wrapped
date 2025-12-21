@@ -61,6 +61,12 @@ export const fetchStatuses = async (
     let keepFetching = true;
     let consecutiveErrors = 0;
 
+    // Adaptive rate limiting
+    const BASE_DELAY = 100;
+    const MAX_DELAY = 500;
+    let currentDelay = BASE_DELAY;
+    let consecutiveSuccesses = 0;
+
     while (keepFetching) {
         let url = `https://${cleanInstance}/api/v1/accounts/${accountId}/statuses?limit=${LIMIT}&exclude_replies=false`;
         if (maxId) {
@@ -101,6 +107,10 @@ export const fetchStatuses = async (
                 await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000));
                 clearInterval(interval);
 
+                // Increase delay after rate limit
+                currentDelay = MAX_DELAY;
+                consecutiveSuccesses = 0;
+
                 continue;
             }
 
@@ -123,6 +133,14 @@ export const fetchStatuses = async (
             }
 
             consecutiveErrors = 0;
+            consecutiveSuccesses++;
+
+            // Gradually reduce delay after consecutive successes
+            if (consecutiveSuccesses >= 10 && currentDelay > BASE_DELAY) {
+                currentDelay = Math.max(BASE_DELAY, currentDelay - 50);
+                consecutiveSuccesses = 0;
+            }
+
             const chunk: Status[] = await response.json();
             if (chunk.length === 0) break;
 
@@ -144,7 +162,7 @@ export const fetchStatuses = async (
 
             maxId = lastPost.id;
 
-            await new Promise(resolve => setTimeout(resolve, 50));
+            await new Promise(resolve => setTimeout(resolve, currentDelay));
 
         } catch (e) {
             if (e instanceof Error && e.message.includes("抓取被迫中止")) {
