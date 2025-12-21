@@ -8,29 +8,43 @@ export const resolveAccount = async (instanceUrl: string, username: string, toke
     const cleanInstance = instanceUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
     const cleanUsername = username.trim().replace(/^@/, '');
 
-    const lookupUrl = `https://${cleanInstance}/api/v1/accounts/lookup?acct=${cleanUsername}`;
+    const lookupUrl = `https://${cleanInstance}/api/v1/accounts/lookup?acct=${encodeURIComponent(cleanUsername)}`;
 
     try {
         const response = await fetch(lookupUrl, { headers: getHeaders(token) });
-        if (response.ok) return await response.json();
-    } catch (error) { }
+        if (response.ok) {
+            const acc = await response.json();
+            console.log(`[resolveAccount] Found ${cleanUsername} via lookup:`, acc.avatar ? 'has avatar' : 'no avatar');
+            return acc;
+        }
+        console.log(`[resolveAccount] Lookup failed for ${cleanUsername}: ${response.status}`);
+    } catch (error) {
+        console.log(`[resolveAccount] Lookup error for ${cleanUsername}:`, error);
+    }
 
-    const searchUrl = `https://${cleanInstance}/api/v1/accounts/search?q=${cleanUsername}&limit=1`;
+    const searchUrl = `https://${cleanInstance}/api/v1/accounts/search?q=${encodeURIComponent(cleanUsername)}&limit=1`;
     try {
         const response = await fetch(searchUrl, { headers: getHeaders(token) });
         if (response.ok) {
             const results = await response.json();
             const accounts = Array.isArray(results) ? results : (results.accounts || []);
-            if (accounts.length > 0) return accounts[0];
+            if (accounts.length > 0) {
+                console.log(`[resolveAccount] Found ${cleanUsername} via search:`, accounts[0].avatar ? 'has avatar' : 'no avatar');
+                return accounts[0];
+            }
         }
-    } catch (error) { }
+        console.log(`[resolveAccount] Search failed for ${cleanUsername}: ${response.status}`);
+    } catch (error) {
+        console.log(`[resolveAccount] Search error for ${cleanUsername}:`, error);
+    }
 
     // Fallback mock if completely fails
+    console.log(`[resolveAccount] Using fallback for ${cleanUsername}`);
     return {
         id: '0',
-        username: cleanUsername,
+        username: cleanUsername.split('@')[0], // Extract just the username part
         acct: cleanUsername,
-        display_name: cleanUsername,
+        display_name: cleanUsername.split('@')[0],
         avatar: '',
         header: '',
         followers_count: 0,

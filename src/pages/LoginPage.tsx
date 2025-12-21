@@ -1,5 +1,5 @@
-import React from 'react';
-import { Globe, User, Key, AlertCircle, Play, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Globe, User, Key, AlertCircle, Play, Plus, Trash2, ChevronDown, ChevronUp, Upload } from 'lucide-react';
 import { AccountCredential } from '@/types';
 
 interface LoginPageProps {
@@ -12,6 +12,7 @@ interface LoginPageProps {
     onUpdateAccount: (index: number, field: keyof AccountCredential, value: string) => void;
     onToggleAdvanced: () => void;
     onSubmit: (e: React.FormEvent) => void;
+    onFileUpload?: (file: File) => void;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({
@@ -23,8 +24,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     onRemoveAccount,
     onUpdateAccount,
     onToggleAdvanced,
-    onSubmit
+    onSubmit,
+    onFileUpload
 }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && onFileUpload) {
+            onFileUpload(file);
+        }
+    };
+
     return (
         <div className="min-h-[100dvh] w-full bg-slate-50 text-slate-900 flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100 via-white to-pink-50">
             {/* Inject fonts if loaded */}
@@ -142,6 +153,46 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     <p className="text-xs text-center text-slate-400 pt-2">
                         数据仅在本地处理。我们不会存储你的令牌。
                     </p>
+
+                    {/* File Upload Fallback */}
+                    {onFileUpload && (
+                        <div className="pt-4 border-t border-slate-100 mt-4">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".json"
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
+
+                            {/* Check if at least one valid account is filled */}
+                            {accounts.some(a => a.instance?.includes('.') && a.username) ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-full py-2.5 border border-indigo-200 bg-indigo-50 rounded-xl text-indigo-600 font-medium hover:border-indigo-400 hover:bg-indigo-100 transition-all flex items-center justify-center gap-2 text-sm"
+                                    >
+                                        <Upload size={16} />
+                                        上传导出文件（使用上方账号信息）
+                                    </button>
+                                    <p className="text-xs text-center text-slate-400 pt-2">
+                                        支持 Mastodon outbox.json / Misskey notes.json
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="w-full py-2.5 border border-dashed border-slate-200 rounded-xl text-slate-400 font-medium flex items-center justify-center gap-2 text-sm">
+                                        <Upload size={16} />
+                                        上传导出文件
+                                    </div>
+                                    <p className="text-xs text-center text-amber-600 pt-2">
+                                        ⚠️ 请先填写上方的实例地址和用户名，以便获取头像
+                                    </p>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </form>
             </div>
         </div>

@@ -10,6 +10,9 @@ import { AppState, TOTAL_SLIDES, FALLBACK_GRADIENTS } from '@/constants';
 
 // Services
 import { getWrappedData, regenerateVibe } from '@/services';
+import { parseExportFile } from '@/services/exportParser';
+import { calculateStats } from '@/utils/stats';
+import { analyzeSentiment } from '@/services/ai';
 
 // Hooks
 import { useFontLoader } from '@/hooks';
@@ -118,6 +121,63 @@ export default function App() {
         setState(AppState.LOGIN);
         setError(null);
         setLoadingAvatar(null);
+    };
+
+    const handleFileUpload = async (file: File) => {
+        setError(null);
+        setLoadingAvatar(null);
+        setState(AppState.LOADING);
+        setLoadingMsg('正在解析导出文件...');
+
+        try {
+            const parseResult = await parseExportFile(file);
+            setLoadingMsg(`已解析 ${parseResult.posts.length} 条帖子，正在分析...`);
+
+            // Use the first account input for instance/username if provided
+            const primaryCred = accounts[0];
+            let userAccount = parseResult.account;
+            const hasValidInstance = primaryCred.instance && primaryCred.instance.includes('.');
+
+            // If user provided valid instance and username, try to resolve the real account
+            if (hasValidInstance && primaryCred.username) {
+                setLoadingMsg('正在获取用户资料...');
+                try {
+                    const { resolveAccount } = await import('@/services/mastodon');
+                    userAccount = await resolveAccount(
+                        primaryCred.instance,
+                        primaryCred.username,
+                        primaryCred.token || undefined
+                    );
+                    setLoadingAvatar(userAccount.avatar);
+                } catch (e) {
+                    console.warn('Failed to resolve account, using placeholder');
+                }
+            }
+
+            setLoadingMsg('正在计算统计数据...');
+
+            // Create resolve function - only works if user provided valid instance
+            const { resolveAccount: mastodonResolve } = await import('@/services/mastodon');
+            const resolveFunc = hasValidInstance
+                ? (instance: string, username: string, token?: string) => mastodonResolve(primaryCred.instance, username, token)
+                : async () => parseResult.account; // Return placeholder if no instance
+
+            const stats = await calculateStats(
+                userAccount,
+                parseResult.posts,
+                [userAccount],
+                hasValidInstance ? primaryCred.instance : 'imported',
+                resolveFunc,
+                analyzeSentiment,
+                primaryCred.token || undefined
+            );
+
+            setData({ stats });
+            setState(AppState.WRAPPED);
+        } catch (err: any) {
+            setError(err.message || '解析文件失败，请检查文件格式。');
+            setState(AppState.LOGIN);
+        }
     };
 
     const handleRegenerateVibe = async () => {
@@ -534,6 +594,7 @@ export default function App() {
                 onUpdateAccount={updateAccount}
                 onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
                 onSubmit={handleLogin}
+                onFileUpload={handleFileUpload}
             />
         );
     }

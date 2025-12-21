@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 interface Friend {
     username: string;
@@ -11,12 +11,37 @@ interface InnerCircleGraphProps {
     userAvatar: string;
 }
 
+// Generate a stable color from username
+const hashColor = (str: string): string => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = hash % 360;
+    return `hsl(${h}, 70%, 50%)`;
+};
+
+// Generate fallback avatar SVG data URL
+const getFallbackAvatar = (username: string): string => {
+    const color = hashColor(username);
+    const initial = username.charAt(0).toUpperCase();
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="${color}" width="100" height="100"/><text x="50" y="65" font-size="50" font-family="sans-serif" text-anchor="middle" fill="white">${initial}</text></svg>`;
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+};
+
 export const InnerCircleGraph: React.FC<InnerCircleGraphProps> = ({ friends, userAvatar }) => {
     const centerSize = 112; // 7rem
     const baseSize = 80;   // 5rem
     const minSize = 48;    // 3rem
 
     const maxCount = friends.length > 0 ? friends[0].count : 1;
+
+    // Pre-compute fallback avatars
+    const friendsWithFallback = useMemo(() =>
+        friends.map(friend => ({
+            ...friend,
+            avatarUrl: friend.avatar || getFallbackAvatar(friend.username)
+        })), [friends]);
 
     return (
         <div className="relative w-full h-[40vh] min-h-[300px] md:h-[500px] flex items-center justify-center animate-fade-in-up mt-4 md:mt-8">
@@ -27,7 +52,7 @@ export const InnerCircleGraph: React.FC<InnerCircleGraphProps> = ({ friends, use
             {/* User Center */}
             <div className="absolute z-20 rounded-full p-1 md:p-1.5 bg-gradient-to-br from-purple-500 to-pink-500 shadow-[0_0_30px_rgba(168,85,247,0.4)]">
                 <img
-                    src={userAvatar}
+                    src={userAvatar || getFallbackAvatar('me')}
                     alt="Me"
                     className="w-16 h-16 md:w-28 md:h-28 rounded-full object-cover border-2 md:border-4 border-black"
                     crossOrigin="anonymous"
@@ -36,7 +61,7 @@ export const InnerCircleGraph: React.FC<InnerCircleGraphProps> = ({ friends, use
 
             {/* Friends Orbit Container - Rotates */}
             <div className="absolute w-full h-full flex items-center justify-center animate-orbit">
-                {friends.map((friend, i) => {
+                {friendsWithFallback.map((friend, i) => {
                     const rank = i;
                     // Adjust radius for mobile
                     const radius = (typeof window !== 'undefined' && window.innerWidth < 768 ? 120 : 160) + (rank * (typeof window !== 'undefined' && window.innerWidth < 768 ? 20 : 30));
@@ -69,10 +94,9 @@ export const InnerCircleGraph: React.FC<InnerCircleGraphProps> = ({ friends, use
                                     style={{ width: displaySize, height: displaySize }}
                                 >
                                     <img
-                                        src={friend.avatar || `https://ui-avatars.com/api/?name=${friend.username}&background=random`}
+                                        src={friend.avatarUrl}
                                         alt={friend.username}
                                         className="w-full h-full rounded-full object-cover border border-black"
-                                        crossOrigin="anonymous"
                                     />
                                 </div>
 

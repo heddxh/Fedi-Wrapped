@@ -3,6 +3,24 @@ import { Sparkles, Calendar, MessageCircle } from 'lucide-react';
 import { YearStats } from '@/types';
 import { StatCard, Heatmap } from '@/components';
 
+// Generate a stable color from username
+const hashColor = (str: string): string => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = Math.abs(hash) % 360;
+    return `hsl(${h}, 70%, 50%)`;
+};
+
+// Generate fallback avatar SVG data URL
+const getFallbackAvatar = (username: string): string => {
+    const color = hashColor(username);
+    const initial = username.charAt(0).toUpperCase();
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="${color}" width="100" height="100"/><text x="50" y="65" font-size="50" font-family="sans-serif" text-anchor="middle" fill="white">${initial}</text></svg>`;
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+};
+
 interface ExportSlideProps {
     stats: YearStats;
     slideIndex: number;
@@ -18,7 +36,7 @@ export const ExportSlideContent: React.FC<ExportSlideProps> = ({ stats, slideInd
             return (
                 <div className="flex flex-col items-center justify-center h-full text-center px-16">
                     <div className="w-48 h-48 rounded-full border-4 border-white/20 overflow-hidden mb-12 shadow-2xl">
-                        <img src={stats.account.avatar} alt="Profile" className="w-full h-full object-cover" />
+                        <img src={stats.account.avatar || getFallbackAvatar(stats.account.username)} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                     <h1 className="text-7xl font-display font-bold mb-8 tracking-tight">
                         你好, <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200 block mt-4">{stats.account.display_name}</span>
@@ -142,16 +160,16 @@ export const ExportSlideContent: React.FC<ExportSlideProps> = ({ stats, slideInd
                     <p className="text-2xl text-white/80 mb-12">基于你最常提及的人</p>
                     {stats.topFriends.length > 0 ? (
                         <div className="flex flex-wrap justify-center gap-6 max-w-2xl">
-                            {stats.topFriends.slice(0, 5).map((friend, idx) => (
+                            {stats.topFriends.slice(0, 5).map((friend) => (
                                 <div key={friend.username} className="flex flex-col items-center gap-2">
                                     <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/30">
                                         <img
-                                            src={friend.avatar || `https://ui-avatars.com/api/?name=${friend.username}&background=random`}
+                                            src={friend.avatar || getFallbackAvatar(friend.username)}
                                             alt={friend.username}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
-                                    <span className="text-lg font-bold">@{friend.username}</span>
+                                    <span className="text-lg font-bold">@{friend.username.split('@')[0]}</span>
                                     <span className="text-sm text-purple-300">{friend.count} 次</span>
                                 </div>
                             ))}
