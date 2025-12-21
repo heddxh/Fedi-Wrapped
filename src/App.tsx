@@ -224,19 +224,49 @@ export default function App() {
         return true;
     };
 
+    // Safari workaround: render multiple times until output stabilizes
+    const renderWithRetry = async (
+        renderFn: () => Promise<string>,
+        maxAttempts = 3
+    ): Promise<string> => {
+        let lastLength = 0;
+        let result = '';
+
+        for (let i = 0; i < maxAttempts; i++) {
+            result = await renderFn();
+            if (result.length === lastLength && result.length > 0) {
+                // Output stabilized
+                break;
+            }
+            lastLength = result.length;
+            // Small delay before retry
+            await new Promise(r => setTimeout(r, 100));
+        }
+
+        return result;
+    };
+
     // Export handlers - direct capture of visible slide
     const handleCopySlide = async () => {
         if (!slideRef.current || copying) return;
 
         setCopying(true);
         try {
-            const blob = await toBlob(slideRef.current, {
-                cacheBust: true,
-                type: 'image/png',
-                backgroundColor: '#000000',
-                filter: filterNode,
-                fontEmbedCSS: fontCss || undefined
+            // Safari workaround: multiple attempts
+            const dataUrl = await renderWithRetry(async () => {
+                const result = await toPng(slideRef.current!, {
+                    cacheBust: true,
+                    backgroundColor: '#000000',
+                    filter: filterNode,
+                    fontEmbedCSS: fontCss || undefined,
+                    skipAutoScale: true
+                });
+                return result;
             });
+
+            // Convert dataUrl to blob
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
 
             if (blob) {
                 await navigator.clipboard.write([
@@ -258,11 +288,16 @@ export default function App() {
 
         setDownloading(true);
         try {
-            const dataUrl = await toPng(slideRef.current, {
-                cacheBust: true,
-                backgroundColor: '#000000',
-                filter: filterNode,
-                fontEmbedCSS: fontCss || undefined
+            // Safari workaround: multiple attempts
+            const dataUrl = await renderWithRetry(async () => {
+                const result = await toPng(slideRef.current!, {
+                    cacheBust: true,
+                    backgroundColor: '#000000',
+                    filter: filterNode,
+                    fontEmbedCSS: fontCss || undefined,
+                    skipAutoScale: true
+                });
+                return result;
             });
 
             const link = document.createElement('a');
