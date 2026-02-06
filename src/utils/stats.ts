@@ -1,4 +1,5 @@
 import { Account, Status, YearStats } from '@/types';
+import { WRAPPED_YEAR } from '@/constants';
 
 /**
  * Find the longest thread from a list of posts
@@ -218,7 +219,7 @@ export const calculateStats = async (
         : null;
 
     return {
-        year: new Date().getFullYear(),
+        year: WRAPPED_YEAR,
         totalPosts: posts.length,
         totalFavourites,
         totalReblogs,

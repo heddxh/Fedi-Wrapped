@@ -1,5 +1,6 @@
 import { Account, Status } from '@/types';
 import { getHeaders } from '@/utils/helpers';
+import { WRAPPED_YEAR } from '@/constants';
 
 /**
  * Resolve account information from instance and username
@@ -65,10 +66,8 @@ export const fetchStatuses = async (
 ): Promise<Status[]> => {
     const cleanInstance = instanceUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
     const LIMIT = 80;
-    const TARGET_YEAR = new Date().getFullYear();
-
-    const startOfYear = new Date(Date.UTC(TARGET_YEAR, 0, 1, 0, 0, 0));
-    const endOfYear = new Date(Date.UTC(TARGET_YEAR, 11, 31, 23, 59, 59));
+    const startOfYear = new Date(Date.UTC(WRAPPED_YEAR, 0, 1, 0, 0, 0));
+    const endOfYear = new Date(Date.UTC(WRAPPED_YEAR, 11, 31, 23, 59, 59));
 
     let posts: Status[] = [];
     let maxId: string | null = null;

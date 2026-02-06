@@ -2,6 +2,7 @@ import { Account, Status, WrappedData } from '@/types';
 import { calculateStats } from '@/utils/stats';
 import { resolveAccount, fetchStatuses } from './mastodon';
 import { analyzeSentiment, regenerateVibe } from './ai';
+import { WRAPPED_YEAR } from '@/constants';
 
 export { regenerateVibe } from './ai';
 
@@ -14,7 +15,7 @@ export const getWrappedData = async (
     onAccountResolved?: (avatarUrl: string) => void
 ): Promise<WrappedData> => {
     try {
-        const targetYear = new Date().getFullYear();
+        const targetYear = WRAPPED_YEAR;
         const resolvedAccounts: Account[] = [];
         const allPosts: Status[] = [];
 

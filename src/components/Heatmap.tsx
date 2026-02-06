@@ -1,4 +1,5 @@
 import React from 'react';
+import { WRAPPED_YEAR } from '@/constants';
 
 interface HeatmapProps {
     data: Record<string, number>;
@@ -6,7 +7,7 @@ interface HeatmapProps {
 }
 
 export const Heatmap: React.FC<HeatmapProps> = ({ data, year }) => {
-    const targetYear = year || new Date().getFullYear();
+    const targetYear = year || WRAPPED_YEAR;
     const startDate = new Date(Date.UTC(targetYear, 0, 1));
     const endDate = new Date(Date.UTC(targetYear, 11, 31));
     const days: { date: string, count: number }[] = [];

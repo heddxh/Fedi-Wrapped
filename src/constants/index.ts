@@ -1,3 +1,6 @@
+// The year to generate the "wrapped" summary for (previous year)
+export const WRAPPED_YEAR = new Date().getFullYear() - 1;
+
 // App States
 export enum AppState {
     LOGIN,

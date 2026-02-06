@@ -1,4 +1,5 @@
 import { Status, Account } from '@/types';
+import { WRAPPED_YEAR } from '@/constants';
 
 /**
  * ActivityPub Activity object (Mastodon outbox.json)
@@ -81,9 +82,8 @@ export const parseExportFile = async (file: File): Promise<ParseResult> => {
  */
 const parseMastodonOutbox = (data: MastodonOutbox, filename: string): ParseResult => {
     const items = data.orderedItems || data.items || [];
-    const TARGET_YEAR = new Date().getFullYear();
-    const startOfYear = new Date(Date.UTC(TARGET_YEAR, 0, 1, 0, 0, 0));
-    const endOfYear = new Date(Date.UTC(TARGET_YEAR, 11, 31, 23, 59, 59));
+    const startOfYear = new Date(Date.UTC(WRAPPED_YEAR, 0, 1, 0, 0, 0));
+    const endOfYear = new Date(Date.UTC(WRAPPED_YEAR, 11, 31, 23, 59, 59));
 
     const posts: Status[] = [];
 
@@ -158,9 +158,8 @@ const parseMastodonOutbox = (data: MastodonOutbox, filename: string): ParseResul
  * Parse Misskey notes.json
  */
 const parseMisskeyNotes = (data: MisskeyNote[], filename: string): ParseResult => {
-    const TARGET_YEAR = new Date().getFullYear();
-    const startOfYear = new Date(Date.UTC(TARGET_YEAR, 0, 1, 0, 0, 0));
-    const endOfYear = new Date(Date.UTC(TARGET_YEAR, 11, 31, 23, 59, 59));
+    const startOfYear = new Date(Date.UTC(WRAPPED_YEAR, 0, 1, 0, 0, 0));
+    const endOfYear = new Date(Date.UTC(WRAPPED_YEAR, 11, 31, 23, 59, 59));
 
     const posts: Status[] = [];
 
