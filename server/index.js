@@ -93,6 +93,43 @@ const callGenAi = async (prompt) => {
     }
 };
 
+// Mastodon API proxy to bypass CORS restrictions
+app.get('/api/mastodon-proxy', async (req, res) => {
+    try {
+        const { instance, path: apiPath } = req.query;
+        if (!instance || !apiPath) {
+            return res.status(400).json({ error: 'Missing instance or path parameter' });
+        }
+
+        const cleanInstance = instance.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        const targetUrl = `https://${cleanInstance}${apiPath}`;
+
+        const headers = {};
+        if (req.headers.authorization) {
+            headers['Authorization'] = req.headers.authorization;
+        }
+
+        const response = await fetch(targetUrl, { headers });
+
+        res.status(response.status);
+        const contentType = response.headers.get('content-type');
+        if (contentType) {
+            res.setHeader('Content-Type', contentType);
+        }
+
+        const retryAfter = response.headers.get('retry-after');
+        if (retryAfter) {
+            res.setHeader('Retry-After', retryAfter);
+        }
+
+        const data = await response.text();
+        res.send(data);
+    } catch (error) {
+        console.error('Mastodon proxy error:', error);
+        res.status(502).json({ error: 'Failed to proxy request to Mastodon instance' });
+    }
+});
+
 // API Routes
 app.post('/api/analyze', async (req, res) => {
     try {

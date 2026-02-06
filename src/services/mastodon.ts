@@ -3,16 +3,24 @@ import { getHeaders } from '@/utils/helpers';
 import { WRAPPED_YEAR } from '@/constants';
 
 /**
+ * Build a URL that goes through the backend proxy to avoid CORS issues.
+ */
+const buildProxyUrl = (instance: string, apiPath: string): string => {
+    const cleanInstance = instance.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    return `/api/mastodon-proxy?instance=${encodeURIComponent(cleanInstance)}&path=${encodeURIComponent(apiPath)}`;
+};
+
+/**
  * Resolve account information from instance and username
  */
 export const resolveAccount = async (instanceUrl: string, username: string, token?: string): Promise<Account> => {
     const cleanInstance = instanceUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
     const cleanUsername = username.trim().replace(/^@/, '');
 
-    const lookupUrl = `https://${cleanInstance}/api/v1/accounts/lookup?acct=${encodeURIComponent(cleanUsername)}`;
+    const lookupPath = `/api/v1/accounts/lookup?acct=${encodeURIComponent(cleanUsername)}`;
 
     try {
-        const response = await fetch(lookupUrl, { headers: getHeaders(token) });
+        const response = await fetch(buildProxyUrl(cleanInstance, lookupPath), { headers: getHeaders(token) });
         if (response.ok) {
             const acc = await response.json();
             console.log(`[resolveAccount] Found ${cleanUsername} via lookup:`, acc.avatar ? 'has avatar' : 'no avatar');
@@ -23,9 +31,9 @@ export const resolveAccount = async (instanceUrl: string, username: string, toke
         console.log(`[resolveAccount] Lookup error for ${cleanUsername}:`, error);
     }
 
-    const searchUrl = `https://${cleanInstance}/api/v1/accounts/search?q=${encodeURIComponent(cleanUsername)}&limit=1`;
+    const searchPath = `/api/v1/accounts/search?q=${encodeURIComponent(cleanUsername)}&limit=1`;
     try {
-        const response = await fetch(searchUrl, { headers: getHeaders(token) });
+        const response = await fetch(buildProxyUrl(cleanInstance, searchPath), { headers: getHeaders(token) });
         if (response.ok) {
             const results = await response.json();
             const accounts = Array.isArray(results) ? results : (results.accounts || []);
@@ -39,11 +47,10 @@ export const resolveAccount = async (instanceUrl: string, username: string, toke
         console.log(`[resolveAccount] Search error for ${cleanUsername}:`, error);
     }
 
-    // Fallback mock if completely fails
     console.log(`[resolveAccount] Using fallback for ${cleanUsername}`);
     return {
         id: '0',
-        username: cleanUsername.split('@')[0], // Extract just the username part
+        username: cleanUsername.split('@')[0],
         acct: cleanUsername,
         display_name: cleanUsername.split('@')[0],
         avatar: '',
@@ -74,22 +81,20 @@ export const fetchStatuses = async (
     let keepFetching = true;
     let consecutiveErrors = 0;
 
-    // Adaptive rate limiting
     const BASE_DELAY = 100;
     const MAX_DELAY = 500;
     let currentDelay = BASE_DELAY;
     let consecutiveSuccesses = 0;
 
     while (keepFetching) {
-        let url = `https://${cleanInstance}/api/v1/accounts/${accountId}/statuses?limit=${LIMIT}&exclude_replies=false`;
+        let apiPath = `/api/v1/accounts/${accountId}/statuses?limit=${LIMIT}&exclude_replies=false`;
         if (maxId) {
-            url += `&max_id=${maxId}`;
+            apiPath += `&max_id=${maxId}`;
         }
 
         try {
-            const response = await fetch(url, { headers: getHeaders(token) });
+            const response = await fetch(buildProxyUrl(cleanInstance, apiPath), { headers: getHeaders(token) });
 
-            // Handle Rate Limiting (429)
             if (response.status === 429) {
                 consecutiveErrors = 0;
                 const retryHeader = response.headers.get('Retry-After');
@@ -120,7 +125,6 @@ export const fetchStatuses = async (
                 await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000));
                 clearInterval(interval);
 
-                // Increase delay after rate limit
                 currentDelay = MAX_DELAY;
                 consecutiveSuccesses = 0;
 
@@ -148,7 +152,6 @@ export const fetchStatuses = async (
             consecutiveErrors = 0;
             consecutiveSuccesses++;
 
-            // Gradually reduce delay after consecutive successes
             if (consecutiveSuccesses >= 10 && currentDelay > BASE_DELAY) {
                 currentDelay = Math.max(BASE_DELAY, currentDelay - 50);
                 consecutiveSuccesses = 0;
